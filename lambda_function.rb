@@ -37,6 +37,14 @@ def get_place_id(restaurant_name)
 end
 
 def get_reviews(place_id)
+  resource = "https://maps.googleapis.com/maps/api/place/details/json?key=#{ENV['GOOGLE_MAP_API_KEY']}&place_id=#{place_id}&language=ja"
+  place = fetch_data(resource)
+  # rating = place['result']['rating']
+  reviews = place['result']['reviews']
+  return unless reviews
+  reviews
 end
 
-get_place_id("磯丸水産")
+
+# get_place_id("磯丸水産")
+get_reviews("ChIJAQCMGdiMGGARi39obFln_1E")
