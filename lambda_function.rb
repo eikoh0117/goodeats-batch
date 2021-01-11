@@ -5,20 +5,18 @@ require 'dotenv/load'
 require 'aws-record'
 
 
-class GoodEats
+class GoodEatsReviews
   include Aws::Record
   integer_attr :id, hash_key: true
-  integer_attr :restaurant_id
-  integer_attr :name
-  integer_attr :comment
-  integer_attr :evaluation
-  integer_attr :photo
-  integer_attr :date
+  string_attr :author_name
+  integer_attr :rating
+  string_attr :text
+  string_attr :relative_time_description
 end
 
 module Area
-  # ぐるなびAPIで定められているエリアコード（AREAS2156: 池袋東口・東池袋）
-  CODES = ['AREAS2115']
+  # ぐるなびAPIで定められているエリアコード（AREAS2156: 池袋東口・東池袋）AREAS5566(月寒)
+  CODES = ['AREAS5566']
 end
 
 def fetch_data(resource)
@@ -45,6 +43,28 @@ def get_reviews(place_id)
   reviews
 end
 
+def put_item(restaurant_id, review) # DynamoDBへ保存
+  return if GoodEatsReviews.find(id: restaurant_id, author_name: review['author_name']) # 既にDynamoDBに同じIDのレコードが存在した場合は新たに保存しない
+  review = GoodEatsReviews.new
+  review.id = restaurant_id
+  review.author_name = review['author_name']
+  review.rating = review['rating']
+  review.text = review['text']
+  review.relative_time_description = review['relative_time_description']
+  review.save
+end
+
+def lambda_handler
+  Area::CODES.each do |code|
+    resource = "https://api.gnavi.co.jp/RestSearchAPI/v3/?keyid=#{ENV['GNAVI_API_KEY']}&areacode_s=#{code}"
+    restaurants = fetch_data(resource)
+    restaurants.each do |restaurant|
+      puts restaurant['rest']
+    end
+  end
+end
 
 # get_place_id("磯丸水産")
-get_reviews("ChIJAQCMGdiMGGARi39obFln_1E")
+# get_reviews("ChIJAQCMGdiMGGARi39obFln_1E")
+
+lambda_handler()
