@@ -15,21 +15,15 @@ GEM
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.2.2)
       aws-eventstream (~> 1, >= 1.0.2)
-    google_maps_service (0.4.2)
-      hurley (~> 0.1)
-      multi_json (~> 1.11)
-      retriable (~> 2.0)
-    hurley (0.2)
+    dotenv (2.7.6)
     jmespath (1.4.0)
-    multi_json (1.15.0)
-    retriable (2.1.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   aws-record (~> 2.0)
-  google_maps_service
+  dotenv
 
 BUNDLED WITH
    2.1.2
