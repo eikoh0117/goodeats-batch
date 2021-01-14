@@ -26,7 +26,7 @@ module Category
   CODES = ['RSFST09000', 'RSFST02000', 'RSFST03000', 'RSFST04000', 'RSFST05000', 'RSFST06000', 'RSFST01000', 'RSFST07000', 'RSFST08000', 'RSFST14000', 'RSFST11000', 'RSFST13000', 'RSFST12000', 'RSFST16000', 'RSFST15000', 'RSFST17000', 'RSFST10000', 'RSFST21000', 'RSFST18000', 'RSFST19000', 'RSFST20000', 'RSFST90000']
 end
 
-def 
+def
 
 def fetch_data(resource)
   enc_str = URI.encode(resource)
@@ -88,34 +88,7 @@ def lambda_handler
       end
     end
     puts restaurants.length
-    #   restaurants_first['rest'].each do |restaurant|
-    #     restaurants_name = restaurant['name']
-    #     restaurants_id = restaurant['id']
-    #     place_id = get_place_id(restaurant_name)
-    #     reviews = get_reviews(place_id)
-    #     reviews.each do |review|
-    #       put_item(restaurants_id, place_id, reviews)
-    #     end
-    #   end
-    #   if i === 9 && restaurants_first['result']['total_hit_count'] > 1000
-    #     1...10.times do |j|
-    #       resource_second = "https://api.gnavi.co.jp/RestSearchAPI/v3/?keyid=#{ENV['GNAVI_API_KEY']}&areacode_s=#{code}&hit_per_page=100&offset_page=#{10 + j + 1}"
-    #     end
-    #   end
-    # end
-    # # if restaurants['result']['total_hit_count'] > 1000
-    # #   puts restaurants['result']['total_hit_count']
-    # # end
-    # # # for page in 1...100
-    # # restaurants = fetch_data(resource)
-    # # # puts restaurants
-    # # # # restaurants.each do |restaurant|
-
-    # end
   end
 end
-
-# get_place_id("磯丸水産")
-# get_reviews("ChIJAQCMGdiMGGARi39obFln_1E")
 
 lambda_handler()
