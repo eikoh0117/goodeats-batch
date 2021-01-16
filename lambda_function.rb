@@ -69,15 +69,23 @@ def lambda_handler
     resource = "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=#{ENV['RECRUIT_API_KEY']}&small_area=#{area}&order=4&count=100&format=json"
     response = fetch_data(resource)
     results = response['results']
-    hit_count = results['result_available']
+    hit_count = results['results_available']
+    puts hit_count
     next if hit_count === 0
-    if hit_count <= 100
-      shops = results['shop']
-      shops.each do } |shop|
-
-      end
-    elsif hit_count > 100
+    shops = results['shop']
+    shops.each do |shop|
+      name = shop['id']
+      name = shop['name']
+      area = shop['small_area']['name']
+      restaurant = {id: id, name: name, area: area}
+      restaurants.push(restaurant)
     end
+    # if hit_count > 100
+    #   total_pages = (hit_count / 100).to_i
+    #   1...total_pages.times do |i|
+    #     puts i
+    #   end
+    # end
 
 
 
