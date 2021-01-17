@@ -70,41 +70,32 @@ def lambda_handler
     response = fetch_data(resource)
     results = response['results']
     hit_count = results['results_available']
-    puts hit_count
     next if hit_count === 0
     shops = results['shop']
     shops.each do |shop|
-      name = shop['id']
+      id = shop['id']
       name = shop['name']
-      area = shop['small_area']['name']
-      restaurant = {id: id, name: name, area: area}
+      area_name = shop['small_area']['name']
+      restaurant = {id: id, name: name, area: area_name}
       restaurants.push(restaurant)
     end
-    # if hit_count > 100
-    #   total_pages = (hit_count / 100).to_i
-    #   1...total_pages.times do |i|
-    #     puts i
-    #   end
-    # end
-
-
-
-
-
-
-
-    #   1...10.times do |i|
-    #     resource = "https://api.gnavi.co.jp/RestSearchAPI/v3/?keyid=#{ENV['GNAVI_API_KEY']}&areacode_s=#{area}&category_l=#{category}&hit_per_page=100&offset_page=#{i + 1}"
-    #     response = fetch_data(resource)
-    #     puts response
-    #     # puts response
-    #     # next if response['error']
-    #     # puts response
-    #     # response['rest'].each do |restaurant|
-    #     #   puts restaurant
-    #     # end
-    #   end
-    # end
+    if hit_count > 100
+      total_pages = (hit_count / 100).to_i
+      1...total_pages.times do |i|
+        second_resource = "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=#{ENV['RECRUIT_API_KEY']}&small_area=#{area}&order=4&count=100&start=#{(i + 1) * 100 + 1}&format=json"
+        second_response = fetch_data(second_resource)
+        second_results = second_response['results']
+        next if second_results['results_returned'] === "0"
+        second_shops = second_results['shop']
+        second_shops.each do |shop|
+          second_id = shop['id']
+          second_name = shop['name']
+          second_area_name = shop['small_area']['name']
+          second_restaurant = {id: second_id, name: second_name, area: second_area_name}
+          restaurants.push(second_restaurant)
+        end
+      end
+    end
   end
 end
 
