@@ -22,11 +22,6 @@ module Area
   CODES = ['X150'] # 歌舞伎町
 end
 
-# module Category
-#   # ぐるなびAPIで定められている大業態コード
-#   CODES = ['RSFST09000', 'RSFST02000', 'RSFST03000', 'RSFST04000', 'RSFST05000', 'RSFST06000', 'RSFST01000', 'RSFST07000', 'RSFST08000', 'RSFST14000', 'RSFST11000', 'RSFST13000', 'RSFST12000', 'RSFST16000', 'RSFST15000', 'RSFST17000', 'RSFST10000', 'RSFST21000', 'RSFST18000', 'RSFST19000', 'RSFST20000', 'RSFST90000']
-# end
-
 def fetch_data(resource)
   enc_str = URI.encode(resource)
   uri = URI.parse(enc_str)
