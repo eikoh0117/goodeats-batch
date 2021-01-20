@@ -29,36 +29,7 @@ def fetch_data(resource)
   JSON.parse(json)
 end
 
-def get_place_id(shop_name, area)
-  # Google Places APIを使って口コミの情報を取得
-  resource = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=#{shop_name} #{area}&key=#{ENV['GOOGLE_MAP_API_KEY']}&language=ja"
-  places = fetch_data(resource)
-  return unless places['results'].first # 店舗が存在しないときはnilを返す
-  places['results'][0]['place_id']
-end
-
-def get_reviews(place_id)
-  resource = "https://maps.googleapis.com/maps/api/place/details/json?key=#{ENV['GOOGLE_MAP_API_KEY']}&place_id=#{place_id}&language=ja"
-  place = fetch_data(resource)
-  # rating = place['result']['rating']
-  reviews = place['result']['reviews']
-  return unless reviews
-  reviews
-end
-
-def put_item(restaurant_id, place_idreview) # DynamoDBへ保存
-  return if GoodEatsReviews.find(id: restaurant_id, author_name: review['author_name']) # 既にDynamoDBに同じIDのレコードが存在した場合は新たに保存しない
-  review = GoodEatsReviews.new
-  review.restaurant_id = restaurant_id
-  review.place_id = place_id
-  review.author_name = review['author_name']
-  review.rating = review['rating']
-  review.text = review['text']
-  review.relative_time_description = review['relative_time_description']
-  review.save
-end
-
-def lambda_handler
+def get_restaurants
   restaurants = []
   Area::CODES.each do |area|
     resource = "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=#{ENV['RECRUIT_API_KEY']}&small_area=#{area}&order=4&count=100&format=json"
@@ -92,6 +63,40 @@ def lambda_handler
       end
     end
   end
+  restaurants
+end
+
+def get_place_id(shop_name, area)
+  # Google Places APIを使って口コミの情報を取得
+  resource = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=#{shop_name} #{area}&key=#{ENV['GOOGLE_MAP_API_KEY']}&language=ja"
+  places = fetch_data(resource)
+  return unless places['results'].first # 店舗が存在しないときはnilを返す
+  places['results'][0]['place_id']
+end
+
+def get_reviews(place_id)
+  resource = "https://maps.googleapis.com/maps/api/place/details/json?key=#{ENV['GOOGLE_MAP_API_KEY']}&place_id=#{place_id}&language=ja"
+  place = fetch_data(resource)
+  # rating = place['result']['rating']
+  reviews = place['result']['reviews']
+  return unless reviews
+  reviews
+end
+
+def put_item(restaurant_id, place_idreview) # DynamoDBへ保存
+  return if GoodEatsReviews.find(id: restaurant_id, author_name: review['author_name']) # 既にDynamoDBに同じIDのレコードが存在した場合は新たに保存しない
+  review = GoodEatsReviews.new
+  review.restaurant_id = restaurant_id
+  review.place_id = place_id
+  review.author_name = review['author_name']
+  review.rating = review['rating']
+  review.text = review['text']
+  review.relative_time_description = review['relative_time_description']
+  review.save
+end
+
+def lambda_handler
+  restaurants = get_restaurants
 end
 
 lambda_handler()
