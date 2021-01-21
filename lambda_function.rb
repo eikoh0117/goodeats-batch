@@ -5,7 +5,7 @@ require 'dotenv/load'
 require 'aws-record'
 
 
-class GoodEatsReviews
+class GoodEatsReviews # DynamoDBのテーブルを定義
   include Aws::Record
   string_attr :restaurant_id, hash_key: true
   string_attr :place_id, hash_key: true
@@ -15,19 +15,18 @@ class GoodEatsReviews
   string_attr :relative_time_description
 end
 
-module Area
-  # ホットペッパーAPIで定められている小エリアコード
+module Area # ホットペッパーAPIで定められている小エリアコードを定義
   CODES = ['X150'] # 歌舞伎町
 end
 
-def fetch_data(resource)
+def fetch_data(resource) # URIを引数として入力するとJSON形式でレスポンスが出力される汎用的な関数
   enc_str = URI.encode(resource)
   uri = URI.parse(enc_str)
   json = Net::HTTP.get(uri)
   JSON.parse(json)
 end
 
-def get_restaurants
+def get_restaurants # hotpepper APIから飲食店の情報を取得する
   restaurants = []
   Area::CODES.each do |area|
     resource = "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=#{ENV['RECRUIT_API_KEY']}&small_area=#{area}&order=4&count=100&format=json"
@@ -64,15 +63,14 @@ def get_restaurants
   restaurants
 end
 
-def get_place_id(shop_name, area)
-  # Google Places APIを使って口コミの情報を取得
+def get_place_id(shop_name, area) # Google Places APIの一意に与えられているplace_idを取得
   resource = "https://maps.googleapis.com/maps/api/place/textsearch/json?query=#{shop_name} #{area}&key=#{ENV['GOOGLE_MAP_API_KEY']}&language=ja"
   places = fetch_data(resource)
   return unless places['results'].first # 店舗が存在しないときはnilを返す
   places['results'][0]['place_id']
 end
 
-def get_reviews(place_id)
+def get_reviews(place_id) # place_idを用いて、レビューを取得
   resource = "https://maps.googleapis.com/maps/api/place/details/json?key=#{ENV['GOOGLE_MAP_API_KEY']}&place_id=#{place_id}&language=ja"
   place = fetch_data(resource)
   reviews = place['result']['reviews']
@@ -89,7 +87,7 @@ def put_item(restaurant_id, place_id, review) # DynamoDBへ保存
   new_review.rating = review['rating']
   new_review.text = review['text']
   new_review.relative_time_description = review['relative_time_description']
-  return new_review
+  new_review.save
 end
 
 def lambda_handler
