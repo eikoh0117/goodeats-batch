@@ -7,8 +7,8 @@ require 'aws-record'
 
 class GoodEatsReviews
   include Aws::Record
-  integer_attr :restaurant_id, hash_key: true
-  integer_attr :place_id, hash_key: true
+  string_attr :restaurant_id, hash_key: true
+  string_attr :place_id, hash_key: true
   string_attr :author_name
   integer_attr :rating
   string_attr :text
@@ -16,8 +16,6 @@ class GoodEatsReviews
 end
 
 module Area
-  # ホットペッパーAPIで定められている中エリアコード
-  # CODES = ['Y005'] # 新宿
   # ホットペッパーAPIで定められている小エリアコード
   CODES = ['X150'] # 歌舞伎町
 end
@@ -77,26 +75,32 @@ end
 def get_reviews(place_id)
   resource = "https://maps.googleapis.com/maps/api/place/details/json?key=#{ENV['GOOGLE_MAP_API_KEY']}&place_id=#{place_id}&language=ja"
   place = fetch_data(resource)
-  # rating = place['result']['rating']
   reviews = place['result']['reviews']
   return unless reviews
   reviews
 end
 
-def put_item(restaurant_id, place_idreview) # DynamoDBへ保存
-  return if GoodEatsReviews.find(id: restaurant_id, author_name: review['author_name']) # 既にDynamoDBに同じIDのレコードが存在した場合は新たに保存しない
-  review = GoodEatsReviews.new
-  review.restaurant_id = restaurant_id
-  review.place_id = place_id
-  review.author_name = review['author_name']
-  review.rating = review['rating']
-  review.text = review['text']
-  review.relative_time_description = review['relative_time_description']
-  review.save
+def put_item(restaurant_id, place_id, review) # DynamoDBへ保存
+  return if GoodEatsReviews.find(restaurant_id: restaurant_id, place_id: place_id, author_name: review['author_name']) # 既にDynamoDBに同じIDのレコードが存在した場合は新たに保存しない
+  new_review = GoodEatsReviews.new
+  new_review.restaurant_id = restaurant_id
+  new_review.place_id = place_id
+  new_review.author_name = review['author_name']
+  new_review.rating = review['rating']
+  new_review.text = review['text']
+  new_review.relative_time_description = review['relative_time_description']
+  return new_review
 end
 
 def lambda_handler
   restaurants = get_restaurants
+  restaurants.each do |restaurant|
+    place_id = get_place_id(restaurant[:name], restaurant[:area])
+    reviews = get_reviews(place_id)
+    reviews.each do |review|
+      put_item(restaurant[:id], place_id, review)
+    end
+  end
 end
 
 lambda_handler()
