@@ -8,7 +8,7 @@ require 'aws-record'
 class GoodEatsReviews # DynamoDBのテーブルを定義
   include Aws::Record
   string_attr :restaurant_id, hash_key: true
-  string_attr :place_id, hash_key: true
+  string_attr :place_id, range_key: true
   string_attr :author_name
   integer_attr :rating
   string_attr :text
