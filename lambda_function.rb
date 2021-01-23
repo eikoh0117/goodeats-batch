@@ -95,8 +95,11 @@ def lambda_handler
   restaurants = get_restaurants
   restaurants.each do |restaurant|
     place_id = get_place_id(restaurant[:name], restaurant[:area])
+    next if !place_id
     reviews = get_reviews(place_id)
+    next if !reviews
     reviews.each do |review|
+      next if review['text'].length < 10 # 10字以下のレビューを除外する
       put_item(restaurant[:id], place_id, review)
     end
   end
