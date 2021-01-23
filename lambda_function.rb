@@ -1,6 +1,7 @@
 require 'net/http'
 require 'uri'
 require 'json'
+require 'addressable/uri'
 require 'dotenv/load'
 require 'aws-record'
 
@@ -20,7 +21,7 @@ module Area # ホットペッパーAPIで定められている小エリアコー
 end
 
 def fetch_data(resource) # URIを引数として入力するとJSON形式でレスポンスが出力される汎用的な関数
-  enc_str = URI.encode(resource)
+  enc_str = Addressable::URI.encode(resource)
   uri = URI.parse(enc_str)
   json = Net::HTTP.get(uri)
   JSON.parse(json)
