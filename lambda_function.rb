@@ -9,8 +9,8 @@ require 'aws-record'
 class GoodEatsReviews # DynamoDBのテーブルを定義
   include Aws::Record
   string_attr :restaurant_id, hash_key: true
-  string_attr :place_id, range_key: true
-  string_attr :author_name
+  string_attr :author_name, range_key: true
+  string_attr :place_id
   integer_attr :rating
   string_attr :text
   string_attr :relative_time_description
@@ -91,7 +91,7 @@ def put_item(restaurant_id, place_id, review) # DynamoDBへ保存
   new_review.save
 end
 
-def lambda_handler
+def lambda_handler(event:, context:)
   restaurants = get_restaurants
   restaurants.each do |restaurant|
     place_id = get_place_id(restaurant[:name], restaurant[:area])
@@ -103,6 +103,5 @@ def lambda_handler
       put_item(restaurant[:id], place_id, review)
     end
   end
+  { statusCode: 200 }
 end
-
-lambda_handler()
